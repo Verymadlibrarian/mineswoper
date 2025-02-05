@@ -46,20 +46,29 @@ def get_clicked_case(obj,mode):
                 tags = list(fltk_addons.recuperer_tags(obj[1]))
                 print("tags : ", tags)
                 print("----")
-                if len(tags) > 1:
-                    if tags[0] == "-1" and mode == "left":
-                        print("boum")
-                        return -1,0
-                    elif tags == "-2":
-                        print("prut")
-                        return -2,0
+                if "current" in tags:
+                    tags.remove("current")
+                    if mode == "right":
+                        return (tags[1],tags[2])
                     else:
-                        if len(tags) >= 3:
-                            tags.pop(-1)
-                        y,x = int(tags[0]), int(tags[1])
-                        print("Retour des xy : ", y,x)
-                        print("----\n")
-                        return (y,x)
+                        if tags[0] == "-1": #Si c'est une bombe
+                            print("boum")
+                            return (-1,0,0)
+                        
+                        return tags
+                    # if tags[0] == "-1" and mode == "left":
+                    #     print("boum")
+                    #     return (-1,tags[1],tags[2])
+                    # elif tags == "-2":
+                    #     print("prut")
+                    #     return -2,0
+                    # else:
+                    #     if len(tags) >= 3:
+                    #         tags.pop(-1)
+                    #     bomb,y,x = int(tags[0]), int(tags[1]), int(tags[2])
+                    #     print("Retour des xy : ", y,x)
+                    #     print("----\n")
+                    #     return (y,x)
             return (3,0)
 
 def mainloop():
@@ -90,27 +99,19 @@ def mainloop():
         
         elif ev[0] == "ClicDroit":
             obj = fltk_addons.liste_objets_survoles()
-            click = get_clicked_case(obj,"right")
+            x,y = get_clicked_case(obj,"right")
 
-            if click == (-1,0):
-                fltk.ferme_fenetre()
-                break
-            if click == (-3,0):
-                continue
-            if click[0] >= 0:
-                print("rouge ! ")
-                y,x = click[0], click[1]
-                fltk.rectangle(h_padding+y*b_side//nbcases, v_padding+x*b_side//nbcases, h_padding+(y+1)*b_side//nbcases, v_padding+(x+1)*b_side//nbcases, remplissage="#bf616a", tag="-1")
+            fltk.rectangle(h_padding+y*b_side//nbcases, v_padding+x*b_side//nbcases, h_padding+(y+1)*b_side//nbcases, v_padding+(x+1)*b_side//nbcases, remplissage="#bf616a", tag="-1")
         
         elif ev[0] == "ClicGauche":
             obj = fltk_addons.liste_objets_survoles()
             click = get_clicked_case(obj,"left")
 
-            if click == (-1,0):
+            if click == (-1,0,0): #Si c'est une bombe
                 fltk.ferme_fenetre()
                 break
             else:
-                y, x = click[0], click[1]
+                case, y, x = int(click[0]), int(click[1]), int(click[2])
                 fltk.efface(obj)
                 val = compte_bombes(y, x, grid)
                 grid[y][x] = val
@@ -165,9 +166,9 @@ def mainframe(width, height, grid):
             case = grid[i][j]
             if case == -1 :    
                 fltk.rectangle(h_padding+j*b_side//nbcases, v_padding+i*b_side//nbcases, h_padding+(j+1)*b_side//nbcases, v_padding+(i+1)*b_side//nbcases, remplissage="#bf616a", tag="-1")
-                #fltk.rectangle(h_padding+j*b_side//nbcases, v_padding+i*b_side//nbcases, h_padding+(j+1)*b_side//nbcases, v_padding+(i+1)*b_side//nbcases, remplissage=UNKOWN, tag="-1")
+                #fltk.rectangle(h_padding+j*b_side//nbcases, v_padding+i*b_side//nbcases, h_padding+(j+1)*b_side//nbcases, v_padding+(i+1)*b_side//nbcases, remplissage=UNKOWN, tag=[-1, str(i), str(j)])
             if case == -2:
-                fltk.rectangle(h_padding+j*b_side//nbcases, v_padding+i*b_side//nbcases, h_padding+(j+1)*b_side//nbcases, v_padding+(i+1)*b_side//nbcases, remplissage=UNKOWN, tag=[str(i), str(j)])
+                fltk.rectangle(h_padding+j*b_side//nbcases, v_padding+i*b_side//nbcases, h_padding+(j+1)*b_side//nbcases, v_padding+(i+1)*b_side//nbcases, remplissage=UNKOWN, tag=[case, str(i), str(j)])
             if case == 0:
                 fltk.rectangle(h_padding+j*b_side//nbcases, v_padding+i*b_side//nbcases, h_padding+(j+1)*b_side//nbcases, v_padding+(i+1)*b_side//nbcases, couleur="black", remplissage=ALONE)
                 #fltk.texte(h_padding+(j+1/2)*b_side//nbcases, v_padding+(i+1/2)*b_side//nbcases, chaine=str(case), ancrage="center")
