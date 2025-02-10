@@ -20,7 +20,7 @@ def bombes(nbcases, nbbombes):
         y = randint(0, nbcases - 1)
         boumz.append((y, x))
 
-    return boumz        
+    return boumz
 
 
 def grille(nbcases, coord_bombes):
@@ -36,14 +36,16 @@ def grille(nbcases, coord_bombes):
     for i in range(len(coord_bombes)):
         boumz[coord_bombes[i][0]][coord_bombes[i][1]] = -1
 
-    
     return boumz
 
 def get_clicked_case(obj,mode):
             print("obj : ", obj)
             print("----")
-            if obj != None and len(obj) == 2:
-                tags = list(fltk_addons.recuperer_tags(obj[1]))
+            if obj != None :
+                if type(obj) == int:
+                    tags = list(fltk_addons.recuperer_tags(obj))    
+                else:
+                    tags = list(fltk_addons.recuperer_tags(obj[1]))
                 print("tags : ", tags)
                 print("----")
                 if "current" in tags:
@@ -98,13 +100,13 @@ def mainloop():
             b_side, h_padding, v_padding = mainframe(fltk.largeur_fenetre(),fltk.hauteur_fenetre(),grid)
         
         elif ev[0] == "ClicDroit":
-            obj = fltk_addons.liste_objets_survoles()
+            obj = fltk_addons.objet_survole()
             x,y = get_clicked_case(obj,"right")
 
             fltk.rectangle(h_padding+y*b_side//nbcases, v_padding+x*b_side//nbcases, h_padding+(y+1)*b_side//nbcases, v_padding+(x+1)*b_side//nbcases, remplissage="#bf616a", tag="-1")
         
         elif ev[0] == "ClicGauche":
-            obj = fltk_addons.liste_objets_survoles()
+            obj = fltk_addons.objet_survole()
             click = get_clicked_case(obj,"left")
 
             if click == (-1,0,0): #Si c'est une bombe
@@ -165,16 +167,16 @@ def mainframe(width, height, grid):
         for j in range(len(grid[i])):
             case = grid[i][j]
             if case == -1 :    
-                fltk.rectangle(h_padding+j*b_side//nbcases, v_padding+i*b_side//nbcases, h_padding+(j+1)*b_side//nbcases, v_padding+(i+1)*b_side//nbcases, remplissage="#bf616a", tag="-1")
-                #fltk.rectangle(h_padding+j*b_side//nbcases, v_padding+i*b_side//nbcases, h_padding+(j+1)*b_side//nbcases, v_padding+(i+1)*b_side//nbcases, remplissage=UNKOWN, tag=[-1, str(i), str(j)])
+                #fltk.rectangle(h_padding+j*b_side//nbcases, v_padding+i*b_side//nbcases, h_padding+(j+1)*b_side//nbcases, v_padding+(i+1)*b_side//nbcases, remplissage="#bf616a", tag=[case,i,j])
+                fltk.rectangle(h_padding+j*b_side//nbcases, v_padding+i*b_side//nbcases, h_padding+(j+1)*b_side//nbcases, v_padding+(i+1)*b_side//nbcases, remplissage=UNKOWN, tag=[case, i, j])
             if case == -2:
-                fltk.rectangle(h_padding+j*b_side//nbcases, v_padding+i*b_side//nbcases, h_padding+(j+1)*b_side//nbcases, v_padding+(i+1)*b_side//nbcases, remplissage=UNKOWN, tag=[case, str(i), str(j)])
+                fltk.rectangle(h_padding+j*b_side//nbcases, v_padding+i*b_side//nbcases, h_padding+(j+1)*b_side//nbcases, v_padding+(i+1)*b_side//nbcases, remplissage=UNKOWN, tag=[case, i, j])
             if case == 0:
-                fltk.rectangle(h_padding+j*b_side//nbcases, v_padding+i*b_side//nbcases, h_padding+(j+1)*b_side//nbcases, v_padding+(i+1)*b_side//nbcases, couleur="black", remplissage=ALONE)
+                fltk.rectangle(h_padding+j*b_side//nbcases, v_padding+i*b_side//nbcases, h_padding+(j+1)*b_side//nbcases, v_padding+(i+1)*b_side//nbcases, couleur="black", remplissage=ALONE, tag=[case, i, j])
                 #fltk.texte(h_padding+(j+1/2)*b_side//nbcases, v_padding+(i+1/2)*b_side//nbcases, chaine=str(case), ancrage="center")
             if case >= 1:
-                fltk.rectangle(h_padding+j*b_side//nbcases, v_padding+i*b_side//nbcases, h_padding+(j+1)*b_side//nbcases, v_padding+(i+1)*b_side//nbcases, couleur="black", remplissage=EMPTY)
-                fltk.texte(h_padding+(j+1/2)*b_side//nbcases, v_padding+(i+1/2)*b_side//nbcases, chaine=str(case), taille=int(b_side/nbcases/2),ancrage="center")
+                fltk.rectangle(h_padding+j*b_side//nbcases, v_padding+i*b_side//nbcases, h_padding+(j+1)*b_side//nbcases, v_padding+(i+1)*b_side//nbcases, couleur="black", remplissage=EMPTY, tag=[case, i, j])
+                fltk.texte(h_padding+(j+1/2)*b_side//nbcases, v_padding+(i+1/2)*b_side//nbcases, chaine=str(case), taille=int(b_side/nbcases/2),ancrage="center", tag=[case, i, j])
 
     return b_side, h_padding, v_padding
 
@@ -201,9 +203,6 @@ def no_more_zeros(y, x, grid, b_side, h_padding, v_padding):
 
             elif (nb_boumz >= 0) and grid[y+y_][x+x_] == -2:
                 grid[y+ y_][x + x_] = nb_boumz
-                #fltk.rectangle(h_padding+(x+x_)*b_side//nbcases, v_padding+(y+y_)*b_side//nbcases, h_padding+((x+x_)+1)*b_side//nbcases, v_padding+((y+y_)+1)*b_side//nbcases, couleur="black", remplissage=EMPTY)
-                #fltk.texte(h_padding+((x+x_)+1/2)*b_side//nbcases, v_padding+((y+y_)+1/2)*b_side//nbcases, chaine=str(grid[y+ y_][x + x_]), taille=int(b_side/nbcases/2),ancrage="center")
-    
 
 
 
